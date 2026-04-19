@@ -1,0 +1,198 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type _ImmutableObjectStorageRefillResult = 
+ record {
+   success: opt bool;
+   topped_up_amount: opt nat;
+ };
+type _ImmutableObjectStorageRefillInformation = record {
+                                                  proposed_top_up_amount:
+                                                   opt nat;};
+type _ImmutableObjectStorageCreateCertificateResult = 
+ record {
+   blob_hash: text;
+   method: text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = 
+ record {
+   avatar: opt ExternalBlob;
+   bio: text;
+   createdAt: Timestamp;
+   followersCount: nat;
+   followingCount: nat;
+   id: UserId;
+   isAdmin: bool;
+   isBanned: bool;
+   isFlagged: bool;
+   name: text;
+   tier: SubscriptionTier;
+ };
+type UserId = principal;
+type UpdateProfileInput = 
+ record {
+   bio: text;
+   name: text;
+ };
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type Timestamp = int;
+type SubscriptionTier = 
+ variant {
+   free;
+   pro;
+ };
+type StripeSessionStatus = 
+ variant {
+   completed: record {
+                response: text;
+                userPrincipal: opt text;
+              };
+   failed: record {error: text;};
+ };
+type StripeConfiguration = 
+ record {
+   allowedCountries: vec text;
+   secretKey: text;
+ };
+type ShoppingItem = 
+ record {
+   currency: text;
+   priceInCents: nat;
+   productDescription: text;
+   productName: text;
+   quantity: nat;
+ };
+type RegisterInput = 
+ record {
+   bio: text;
+   name: text;
+ };
+type PostId = nat;
+type Post = 
+ record {
+   authorPrincipal: UserId;
+   commentsCount: nat;
+   content: text;
+   createdAt: Timestamp;
+   id: PostId;
+   likesCount: nat;
+ };
+type PersonalityType = 
+ variant {
+   businessCoach;
+   friendly;
+   mentor;
+   romantic;
+ };
+type MessageId = nat;
+type Message = 
+ record {
+   companionId: CompanionId;
+   content: text;
+   id: MessageId;
+   role: variant {
+           assistant;
+           user;
+         };
+   timestamp: Timestamp;
+ };
+type ExternalBlob = blob;
+type CreatePostInput = record {content: text;};
+type CreateCompanionInput = 
+ record {
+   customTraits: text;
+   name: text;
+   personalityType: PersonalityType;
+ };
+type CreateCommentInput = record {content: text;};
+type CompanionId = nat;
+type CommentId = nat;
+type Comment = 
+ record {
+   authorPrincipal: UserId;
+   content: text;
+   createdAt: Timestamp;
+   id: CommentId;
+   postId: PostId;
+ };
+type AICompanion = 
+ record {
+   createdAt: Timestamp;
+   customTraits: text;
+   id: CompanionId;
+   name: text;
+   ownerPrincipal: UserId;
+   personalityType: PersonalityType;
+ };
+service : {
+  _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion: (blobs: vec blob) -> ();
+  _immutableObjectStorageCreateCertificate: (blobHash: text) ->
+   (_ImmutableObjectStorageCreateCertificateResult);
+  _immutableObjectStorageRefillCashier: (refillInformation:
+   opt _ImmutableObjectStorageRefillInformation) ->
+   (_ImmutableObjectStorageRefillResult);
+  _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  _initializeAccessControl: () -> ();
+  adminBanUser: (targetId: UserId) -> ();
+  adminFlagUser: (targetId: UserId) -> ();
+  adminGetUsers: () -> (vec UserProfile) query;
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  commentPost: (postId: PostId, input: CreateCommentInput) -> (Comment);
+  createCheckoutSession: (items: vec ShoppingItem, successUrl: text,
+   cancelUrl: text) -> (text);
+  createCompanion: (input: CreateCompanionInput) -> (AICompanion);
+  createPost: (input: CreatePostInput) -> (Post);
+  deleteCompanion: (companionId: CompanionId) -> ();
+  followUser: (target: UserId) -> ();
+  getAIUsageCount: () -> (nat) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getComments: (postId: PostId) -> (vec Comment) query;
+  getCompanion: (companionId: CompanionId) -> (opt AICompanion) query;
+  getCompanions: () -> (vec AICompanion) query;
+  getFeedPosts: () -> (vec Post) query;
+  getFollowers: (userId: UserId) -> (vec UserId) query;
+  getFollowing: (userId: UserId) -> (vec UserId) query;
+  getMessages: (companionId: CompanionId) -> (vec Message) query;
+  getPosts: (authorId: UserId) -> (vec Post) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getSubscriptionStatus: () -> (SubscriptionTier) query;
+  getUser: (userId: UserId) -> (opt UserProfile) query;
+  isCallerAdmin: () -> (bool) query;
+  isStripeConfigured: () -> (bool) query;
+  likePost: (postId: PostId) -> ();
+  registerUser: (input: RegisterInput) -> (UserProfile);
+  sendMessage: (companionId: CompanionId, content: text) -> (Message);
+  setOpenAiApiKey: (apiKey: text) -> ();
+  setStripeConfiguration: (config: StripeConfiguration) -> ();
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  unfollowUser: (target: UserId) -> ();
+  updateAvatar: (avatar: ExternalBlob) -> ();
+  updateProfile: (input: UpdateProfileInput) -> (UserProfile);
+  upgradeToPro: () -> ();
+}

@@ -1,0 +1,182 @@
+import type { backendInterface, AICompanion, UserProfile, Post, Comment, Message, StripeSessionStatus, _ImmutableObjectStorageCreateCertificateResult, _ImmutableObjectStorageRefillResult } from "../backend";
+import { PersonalityType, SubscriptionTier, UserRole, Variant_user_assistant } from "../backend";
+import { Principal } from "@icp-sdk/core/principal";
+
+const samplePrincipal = Principal.fromText("aaaaa-aa");
+
+const sampleCompanions: AICompanion[] = [
+  {
+    id: BigInt(1),
+    ownerPrincipal: samplePrincipal,
+    customTraits: "Empathetic, warm, always there to listen",
+    name: "Luna",
+    createdAt: BigInt(Date.now() * 1_000_000),
+    personalityType: PersonalityType.friendly,
+  },
+  {
+    id: BigInt(2),
+    ownerPrincipal: samplePrincipal,
+    customTraits: "Passionate, caring, deeply connected",
+    name: "Eros",
+    createdAt: BigInt(Date.now() * 1_000_000),
+    personalityType: PersonalityType.romantic,
+  },
+  {
+    id: BigInt(3),
+    ownerPrincipal: samplePrincipal,
+    customTraits: "Wise, patient, always guiding",
+    name: "Sage",
+    createdAt: BigInt(Date.now() * 1_000_000),
+    personalityType: PersonalityType.mentor,
+  },
+  {
+    id: BigInt(4),
+    ownerPrincipal: samplePrincipal,
+    customTraits: "Strategic, sharp, goal-oriented",
+    name: "Rex",
+    createdAt: BigInt(Date.now() * 1_000_000),
+    personalityType: PersonalityType.businessCoach,
+  },
+];
+
+const sampleProfile: UserProfile = {
+  id: samplePrincipal,
+  bio: "AI companion enthusiast. Building connections in the future.",
+  followersCount: BigInt(128),
+  name: "Alex Rivera",
+  createdAt: BigInt(Date.now() * 1_000_000),
+  tier: SubscriptionTier.free,
+  isBanned: false,
+  isAdmin: false,
+  followingCount: BigInt(42),
+  isFlagged: false,
+};
+
+const samplePosts: Post[] = [
+  {
+    id: BigInt(1),
+    content: "Just had an amazing conversation with my AI companion Luna. She helped me see things from a completely new perspective! 🌙✨",
+    createdAt: BigInt(Date.now() * 1_000_000),
+    commentsCount: BigInt(12),
+    likesCount: BigInt(47),
+    authorPrincipal: samplePrincipal,
+  },
+  {
+    id: BigInt(2),
+    content: "Sage gave me the most insightful advice today about my career path. If you haven't tried the mentor personality, you're missing out!",
+    createdAt: BigInt((Date.now() - 3600000) * 1_000_000),
+    commentsCount: BigInt(8),
+    likesCount: BigInt(33),
+    authorPrincipal: samplePrincipal,
+  },
+  {
+    id: BigInt(3),
+    content: "Rex my business coach companion just helped me outline my entire Q2 strategy. 10x productivity unlocked 🚀",
+    createdAt: BigInt((Date.now() - 7200000) * 1_000_000),
+    commentsCount: BigInt(5),
+    likesCount: BigInt(21),
+    authorPrincipal: samplePrincipal,
+  },
+];
+
+const sampleMessages: Message[] = [
+  {
+    id: BigInt(1),
+    content: "Hey Luna! I've been feeling a bit overwhelmed lately. Can we talk?",
+    role: Variant_user_assistant.user,
+    companionId: BigInt(1),
+    timestamp: BigInt((Date.now() - 600000) * 1_000_000),
+  },
+  {
+    id: BigInt(2),
+    content: "Of course! I'm always here for you 💜 Tell me what's on your mind. Sometimes just saying it out loud helps.",
+    role: Variant_user_assistant.assistant,
+    companionId: BigInt(1),
+    timestamp: BigInt((Date.now() - 540000) * 1_000_000),
+  },
+  {
+    id: BigInt(3),
+    content: "Work has been so stressful. I feel like I can't keep up with everything.",
+    role: Variant_user_assistant.user,
+    companionId: BigInt(1),
+    timestamp: BigInt((Date.now() - 480000) * 1_000_000),
+  },
+  {
+    id: BigInt(4),
+    content: "That's so valid. Feeling overwhelmed is a sign you care deeply about what you do. Let's break it down together — what feels most urgent to you right now?",
+    role: Variant_user_assistant.assistant,
+    companionId: BigInt(1),
+    timestamp: BigInt((Date.now() - 420000) * 1_000_000),
+  },
+];
+
+export const mockBackend: backendInterface = {
+  adminBanUser: async () => undefined,
+  adminFlagUser: async () => undefined,
+  adminGetUsers: async () => [sampleProfile],
+  assignCallerUserRole: async () => undefined,
+  commentPost: async (postId, input) => ({
+    id: BigInt(1),
+    content: input.content,
+    createdAt: BigInt(Date.now() * 1_000_000),
+    authorPrincipal: samplePrincipal,
+    postId,
+  }),
+  createCheckoutSession: async () => "https://checkout.stripe.com/mock-session",
+  createCompanion: async (input) => ({
+    id: BigInt(Date.now()),
+    ownerPrincipal: samplePrincipal,
+    customTraits: input.customTraits,
+    name: input.name,
+    createdAt: BigInt(Date.now() * 1_000_000),
+    personalityType: input.personalityType,
+  }),
+  createPost: async (input) => ({
+    id: BigInt(Date.now()),
+    content: input.content,
+    createdAt: BigInt(Date.now() * 1_000_000),
+    commentsCount: BigInt(0),
+    likesCount: BigInt(0),
+    authorPrincipal: samplePrincipal,
+  }),
+  deleteCompanion: async () => undefined,
+  followUser: async () => undefined,
+  getAIUsageCount: async () => BigInt(3),
+  getCallerUserRole: async () => UserRole.user,
+  getComments: async () => [],
+  getCompanion: async (id) => sampleCompanions.find(c => c.id === id) ?? null,
+  getCompanions: async () => sampleCompanions,
+  getFeedPosts: async () => samplePosts,
+  getFollowers: async () => [],
+  getFollowing: async () => [],
+  getMessages: async () => sampleMessages,
+  getPosts: async () => samplePosts,
+  getStripeSessionStatus: async () => ({ __kind__: "failed", failed: { error: "mock" } } as StripeSessionStatus),
+  getSubscriptionStatus: async () => SubscriptionTier.free,
+  getUser: async () => sampleProfile,
+  isCallerAdmin: async () => false,
+  isStripeConfigured: async () => false,
+  likePost: async () => undefined,
+  registerUser: async (input) => ({ ...sampleProfile, name: input.name, bio: input.bio }),
+  sendMessage: async (companionId, content) => ({
+    id: BigInt(Date.now()),
+    content: "That's a great question! Let me think about that with you...",
+    role: Variant_user_assistant.assistant,
+    companionId,
+    timestamp: BigInt(Date.now() * 1_000_000),
+  }),
+  setOpenAiApiKey: async () => undefined,
+  setStripeConfiguration: async () => undefined,
+  transform: async (input) => ({ status: BigInt(200), body: new Uint8Array(), headers: [] }),
+  unfollowUser: async () => undefined,
+  updateAvatar: async () => undefined,
+  updateProfile: async (input) => ({ ...sampleProfile, name: input.name, bio: input.bio }),
+  upgradeToPro: async () => undefined,
+  _initializeAccessControl: async () => undefined,
+  _immutableObjectStorageBlobsAreLive: async () => [],
+  _immutableObjectStorageBlobsToDelete: async () => [],
+  _immutableObjectStorageConfirmBlobDeletion: async () => undefined,
+  _immutableObjectStorageCreateCertificate: async (): Promise<_ImmutableObjectStorageCreateCertificateResult> => ({ method: "GET", blob_hash: "" }),
+  _immutableObjectStorageRefillCashier: async (): Promise<_ImmutableObjectStorageRefillResult> => ({ success: true, topped_up_amount: BigInt(0) }),
+  _immutableObjectStorageUpdateGatewayPrincipals: async () => undefined,
+};

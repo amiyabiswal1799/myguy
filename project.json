@@ -1,0 +1,23 @@
+{
+  "overview": "MyGuy is an AI-powered social companion platform where you can create personalized AI companions with distinct personalities, chat with them, and connect with other users through a social feed. Your AI companion remembers your conversations, adapts over time, and feels genuinely personal.",
+  "features": [
+    "AI companion creation with 4 personality types: friendly, romantic, mentor, business-coach",
+    "Chat with your AI companion — conversation memory and context retention",
+    "Social feed: post updates, like and comment on posts from people you follow",
+    "Follow/unfollow other users with follower and following counts",
+    "Free tier (10 AI messages/day) and paid Pro tier (unlimited)",
+    "Stripe-powered subscription upgrade flow",
+    "User profiles with avatar uploads",
+    "Admin dashboard: manage users, flag and ban accounts",
+    "Dark-first minimal UI"
+  ],
+  "category": "social",
+  "tags": [
+    "ai-companion",
+    "social-media",
+    "chat",
+    "personalization",
+    "subscription"
+  ],
+  "last_updated": "2026-04-19T18:26:21.400Z"
+}
